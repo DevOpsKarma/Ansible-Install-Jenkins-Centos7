@@ -1,5 +1,5 @@
 ---
-- name: Network Getting Started First Playbook Extended
+- name: Ansible Install Jenkins on Centos7 Server
   gather_facts: false
   hosts: all
   tasks:

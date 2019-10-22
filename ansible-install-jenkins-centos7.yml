@@ -1,0 +1,50 @@
+---
+- name: Network Getting Started First Playbook Extended
+  gather_facts: false
+  hosts: all
+  tasks:
+
+    - name: Check Hostname
+      command: hostname
+      register: hname
+
+    - debug: msg="{{ hname.stdout }}"
+
+    - name: Install tools
+      yum:
+        name:
+          - wget
+          - java-1.8.0-openjdk
+
+    - name: Download Jenkins repository
+      get_url:
+        url: http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
+        dest: /etc/yum.repos.d/jenkins.repo
+
+    - name: Import Jenkins Key
+      rpm_key:
+        state: present
+        key: https://jenkins-ci.org/redhat/jenkins-ci.org.key
+
+    - name: Install Jenkins
+      yum:
+        name: jenkins
+        state: present
+
+    - name: Start & Enable Jenkins
+      systemd:
+        name: jenkins
+        state: started
+        enabled: true
+
+    - name: Wait for Jenkins to start up
+      wait_for: timeout=35
+
+    - name: Get Jenkins password
+      shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+      changed_when: false
+      register: result
+
+    - name: Password to "Unlock Jenkins"
+      debug:
+        var: result.stdout
